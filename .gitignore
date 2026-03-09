@@ -19,3 +19,13 @@ application*.yaml
 
 # node_modules
 node_modules/
+
+# PostgreSQL data (Docker volume mount)
+infra/postgres/data/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IntelliJ module files
+*.iml
