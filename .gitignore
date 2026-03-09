@@ -11,5 +11,11 @@ ai-server/venv/
 .env
 *.env
 
+# Spring Boot secrets
+application.yml
+application.yaml
+application*.yml
+application*.yaml
+
 # node_modules
 node_modules/
