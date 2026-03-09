@@ -1,0 +1,15 @@
+# IDE
+.idea/
+
+# Spring Boot build
+backend/build/
+
+# Python virtual environment
+ai-server/venv/
+
+# Environment variables
+.env
+*.env
+
+# node_modules
+node_modules/
