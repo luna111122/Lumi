@@ -36,6 +36,10 @@ public class AiClientImpl implements AiClient {
                 .onErrorMap(e -> new AnalyzeException(AnalyzeErrorCode.AI_SERVER_ERROR))
                 .block();
 
+        if (response == null) {
+            throw new AnalyzeException(AnalyzeErrorCode.AI_SERVER_ERROR);
+        }
+
         return AnalyzeResponse.builder()
                 .summary(response.getSummary())
                 .errors(response.getErrors())
