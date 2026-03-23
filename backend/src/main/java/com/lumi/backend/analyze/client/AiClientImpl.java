@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
@@ -28,7 +29,7 @@ public class AiClientImpl implements AiClient {
                 .build();
 
         AiAnalyzeResponse response = webClient.post()
-                .uri(aiServerUrl + "/analyze")
+                .uri(UriComponentsBuilder.fromHttpUrl(aiServerUrl).pathSegment("analyze").toUriString())
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(AiAnalyzeResponse.class)
