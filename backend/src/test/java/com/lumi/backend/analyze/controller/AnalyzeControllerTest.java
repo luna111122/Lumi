@@ -3,15 +3,16 @@ package com.lumi.backend.analyze.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lumi.backend.analyze.dto.AnalyzeRequest;
 import com.lumi.backend.analyze.dto.AnalyzeResponse;
+import com.lumi.backend.analyze.exceptions.AnalyzeException;
+import com.lumi.backend.analyze.exceptions.code.AnalyzeErrorCode;
 import com.lumi.backend.analyze.service.AnalyzeService;
+import com.lumi.backend.fixture.AnalyzeFixture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -34,15 +35,8 @@ class AnalyzeControllerTest {
     @Test
     void analyzeLog_정상요청_200반환() throws Exception {
         // given
-        AnalyzeRequest request = AnalyzeRequest.builder()
-                .log("java.lang.NullPointerException at com.lumi.Service.java:42")
-                .build();
-
-        AnalyzeResponse response = AnalyzeResponse.builder()
-                .summary("NullPointerException 발생")
-                .errors(List.of("com.lumi.Service.java:42"))
-                .suggestion("null 체크 추가 필요")
-                .build();
+        AnalyzeRequest request = AnalyzeFixture.createRequest();
+        AnalyzeResponse response = AnalyzeFixture.createResponse();
 
         given(analyzeService.analyzeLog(any())).willReturn(response);
 
@@ -77,14 +71,33 @@ class AnalyzeControllerTest {
     @Test
     void analyzeLog_null로그_400반환() throws Exception {
         // given
-        String requestBody = "{\"log\": null}";
+        AnalyzeRequest request = AnalyzeRequest.builder()
+                .log(null)
+                .build();
 
         // when & then
         mockMvc.perform(post("/api/analyze")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON400_1"));
+    }
+
+    @Test
+    void analyzeLog_AI서버오류_500반환() throws Exception {
+        // given
+        AnalyzeRequest request = AnalyzeFixture.createRequest();
+
+        given(analyzeService.analyzeLog(any()))
+                .willThrow(new AnalyzeException(AnalyzeErrorCode.AI_SERVER_ERROR));
+
+        // when & then
+        mockMvc.perform(post("/api/analyze")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("ANALYZE500_1"));
     }
 }
