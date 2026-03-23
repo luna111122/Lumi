@@ -6,6 +6,7 @@ import com.lumi.backend.global.apiPayload.exception.GeneralException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +50,13 @@ public class GeneralExceptionHandler {
                 .result(fieldErrorMap.isEmpty() ? null : fieldErrorMap)
                 .build();
 
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        log.warn("HttpMessageNotReadableException: {}", e.getMessage());
+        ApiResponse<Void> response = ApiResponse.onFailure(GeneralErrorCode.BAD_REQUEST, null);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
