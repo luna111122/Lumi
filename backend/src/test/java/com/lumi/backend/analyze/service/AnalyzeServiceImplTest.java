@@ -5,13 +5,12 @@ import com.lumi.backend.analyze.dto.AnalyzeRequest;
 import com.lumi.backend.analyze.dto.AnalyzeResponse;
 import com.lumi.backend.analyze.exceptions.AnalyzeException;
 import com.lumi.backend.analyze.exceptions.code.AnalyzeErrorCode;
+import com.lumi.backend.fixture.AnalyzeFixture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,15 +28,8 @@ class AnalyzeServiceImplTest {
     @Test
     void analyzeLog_정상요청_응답반환() {
         // given
-        AnalyzeRequest request = AnalyzeRequest.builder()
-                .log("java.lang.NullPointerException at com.lumi.Service.java:42")
-                .build();
-
-        AnalyzeResponse expected = AnalyzeResponse.builder()
-                .summary("NullPointerException 발생")
-                .errors(List.of("com.lumi.Service.java:42"))
-                .suggestion("null 체크 추가 필요")
-                .build();
+        AnalyzeRequest request = AnalyzeFixture.createRequest();
+        AnalyzeResponse expected = AnalyzeFixture.createResponse();
 
         given(aiClient.analyzeLog(request.getLog())).willReturn(expected);
 
@@ -53,9 +45,7 @@ class AnalyzeServiceImplTest {
     @Test
     void analyzeLog_AiClient실패_예외발생() {
         // given
-        AnalyzeRequest request = AnalyzeRequest.builder()
-                .log("java.lang.NullPointerException at com.lumi.Service.java:42")
-                .build();
+        AnalyzeRequest request = AnalyzeFixture.createRequest();
 
         given(aiClient.analyzeLog(request.getLog()))
                 .willThrow(new AnalyzeException(AnalyzeErrorCode.AI_SERVER_ERROR));
