@@ -33,7 +33,7 @@ public class AiClientImpl implements AiClient {
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(AiAnalyzeResponse.class)
-                .doOnError(e -> log.error("AI 서버 호출 실패: {}", e.getClass().getSimpleName()))
+                .doOnError(e -> log.error("AI 서버 호출 실패: {} - {}", e.getClass().getSimpleName(), e.getMessage()))
                 .onErrorMap(e -> new AnalyzeException(AnalyzeErrorCode.AI_SERVER_ERROR))
                 .block();
 
