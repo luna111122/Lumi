@@ -29,3 +29,6 @@ __pycache__/
 
 # IntelliJ module files
 *.iml
+
+# Claude Code local settings
+.claude/settings.local.json
